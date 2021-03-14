@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg2276"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="music_note.svg">
+  <style
+     id="style2930" />
+  <defs
+     id="defs2270" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="400"
+     inkscape:cy="560"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata2273">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g2968"
+       transform="matrix(0.7354156,0,0,0.7354156,22.808631,31.443769)">
+      <rect
+         style="fill:#000000;fill-rule:evenodd;stroke-width:0.484269"
+         id="rect2282"
+         width="156.63054"
+         height="5.7201533"
+         x="22.42078"
+         y="89.491066"
+         transform="matrix(0.95478036,-0.29731207,0.32108239,0.94705127,0,0)" />
+      <ellipse
+         style="opacity:0.96;fill:#000000;stroke-width:4.36838;stroke-linecap:round;paint-order:markers stroke fill"
+         id="path2278"
+         cx="86.503716"
+         cy="-272.38306"
+         rx="32.200363"
+         ry="31.155577"
+         transform="matrix(1,0,0.19024301,-0.98173703,0,0)" />
+      <rect
+         style="opacity:0.96;fill:#000000;stroke-width:4.55364;stroke-linecap:round;paint-order:markers stroke fill"
+         id="rect2284"
+         width="7.7280788"
+         height="184.30373"
+         x="193.11055"
+         y="36.280144" />
+      <ellipse
+         style="opacity:0.96;fill:#000000;stroke-width:4.36156;stroke-linecap:round;paint-order:markers stroke fill"
+         id="path2278-2"
+         cx="219.5497"
+         cy="233.84921"
+         rx="32.200363"
+         ry="31.058432"
+         transform="matrix(1,0,-0.17364818,0.98480775,0,0)" />
+      <rect
+         style="opacity:0.96;fill:#000000;stroke-width:4.44064;stroke-linecap:round;paint-order:markers stroke fill"
+         id="rect2284-8"
+         width="7.7280788"
+         height="175.2686"
+         x="50.140923"
+         y="78.086655" />
+    </g>
+  </g>
+</svg>
