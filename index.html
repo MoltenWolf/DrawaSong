@@ -1,0 +1,345 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body id="body">	
+	<canvas id = "drawPad" style="border:0.5px solid"></canvas>
+	<svg id="id" width= "95.9%" height= "130">
+		<rect width= "100%" height = "130" style= "fill: LightSlateGrey;stroke:DimGrey;stroke-width:5" />	
+
+	</svg>
+	<canvas height='130' id='cw' width='130' style= "fill: LightSlateGrey"></canvas>
+	<br>
+    <button id="vid" onclick="camera()">
+	<img src="camera.svg" alt="Take video/screenshot button" height="50" width="50" />
+	</button>
+	<button id = "button" onclick = "music()"  />
+	<img id="music_note" src="music_note.svg" alt="Music note button" height="50" width="50">
+	</button>
+	<button>
+	<img src="trash_can.svg" alt="Trash button" height="50" width="50" />
+	</button>
+	<button id= "eraser" onclick="eraser()">
+	<img src="eraser.svg" alt="Eraser button" height="50" width="50" />
+	</button> 
+	<br>
+	
+</body>
+<script>
+
+var constraints;
+var video;
+const swatchX = [50, 115, 180, 245, 310, 375, 50, 115, 180, 245, 310, 375];
+const swatchY = [5,5,5,5,5,5,75,75,75,75,75,75];
+const swatch_size = 50;
+const swatchColor = ['red', 'orange', 'gold', 'green', 'royalBlue', 'rebeccaPurple', 'paleTurquoise', 'maroon', '#fffacd',' midnightblue', 'honeyDew', '#e6e6fa'];
+const svg = document.getElementById("id");
+const drawPad = document.getElementById('drawPad');
+const ctx = drawPad.getContext('2d'); 
+var vid = 0;	
+var canvas = document.getElementById("canvas");	
+var pxl = ctx.getImageData(0, 0, drawPad.width, drawPad.height);
+var body =  document.getElementById('body');
+var j = 0;
+var noteLength;
+var i = 0;
+var buttonState = "play";
+var context = 0;
+
+var gainNode = 0;
+let mouse = {x:0 , y:0};  
+let draw = false; 
+var swatch = [];
+var pen = 'black';
+var frequency = [130.82, 138.59, 146.83, 155.56, 164.81, 174.61, 185, 196, 207.65, 220, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392, 415.34, 440.00, 466.16, 493.88, 523.25, 554.37, 587.33, 622.25, 659.26, 698.46, 739.99, 783.99, 830.61, 880, 932.33, 987.77, 1046.5, 1108.73, 1174.66, 1244.51, 1318.51, 1396.91, 1479.98, 1567.98];
+
+var cw = document.getElementById('cw');
+var cw_ctx = cw.getContext("2d");
+
+var brushStrokeSize = document.createElement('input');
+brushStrokeSize.setAttributeNS(null, 'id', "slider");
+brushStrokeSize.setAttributeNS(null, 'type', "range");
+brushStrokeSize.value = 5;
+body.appendChild(brushStrokeSize);
+
+
+
+for (let i = 0; i < swatchX.length; i++) {
+	swatch[i] = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+	swatch[i].setAttributeNS(null, 'width', swatch_size);
+	swatch[i].setAttributeNS(null, 'height', swatch_size);
+	swatch[i].setAttributeNS(null, 'id', 'swatch');
+	swatch[i].setAttributeNS(null, 'stroke', 'black');
+	swatch[i].setAttributeNS(null, 'stroke-width', 0);
+	swatch[i].setAttributeNS(null, 'x', swatchX[i]);
+	swatch[i].setAttributeNS(null, 'y', swatchY[i]);
+	swatch[i].setAttributeNS(null, 'fill', swatchColor[i]);
+	svg.appendChild(swatch[i]);
+}
+drawCircle();
+
+cw.style.position = 'fixed';
+cw.style.top = svg.style.top;
+cw.style.left = swatchX[swatchX.length -1] + swatch_size + 15;
+
+function camera() {
+	if (vid == 0) {
+		startVid();
+	} else {
+		takeShot();
+	}
+}
+
+function startVid() {
+	vid = document.createElement('video');	
+	vid.style.position = 'fixed';
+	vid.style.top = 0;
+	vid.style.left = 8;
+	vid.setAttributeNS(null, 'width', drawPad.width);
+	vid.setAttributeNS(null, 'height', drawPad.height);
+	body.appendChild(vid);
+	video = document.querySelector("video");
+	constraints = {
+		video: true,
+	};
+	navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+		video.srcObject = stream;
+	});
+	video.play();
+}
+function takeShot() {
+	drawPad.width = video.videoWidth;
+	drawPad.height = video.videoHeight;
+	video.pause();
+	drawPad.getContext("2d").drawImage(vid, 0, 0);
+	body.removeChild(vid);
+	vid = 0;
+}
+
+function getMousePos(event){ 
+  mouse.x = event.clientX - drawPad.offsetLeft; 
+  mouse.y = event.clientY - drawPad.offsetTop; 
+} 
+
+window.addEventListener('load', ()=>{  
+    resize(); 
+    document.addEventListener('mousedown', startDraw); 
+    document.addEventListener('mouseup', stopDraw); 
+    document.addEventListener('mousemove', movePen); 
+    window.addEventListener('resize', resize); 
+}); 
+
+function startDraw(event){ 
+  draw = true; 
+  getMousePos(event); 
+} 
+	
+function stopDraw(){ 
+  draw = false; 
+  
+  var clickswatch;
+  clickswatch = event.target;
+  if (clickswatch.getAttributeNS(null, "id") == "swatch") {
+	for (let i = 0; i < swatch.length; i++) {
+	  swatch[i].setAttributeNS(null, 'stroke-width', 0);
+	  svg.appendChild(swatch[i])
+	}
+	clickswatch.setAttributeNS(null, 'stroke-width', 4);
+	svg.appendChild(clickswatch);
+	pen = clickswatch.getAttributeNS(null, 'fill');
+  } 
+  
+  if (clickswatch.getAttributeNS(null, "id") == "cw"){
+	mouse.x = event.clientX - cw.offsetLeft; 
+	mouse.y = event.clientY - cw.offsetTop; 
+	//mouse.x = Math.floor(event.pageX - cw.offsetLeft);
+	//mouse.y = Math.floor(event.pageY - cw.offsetLeft);
+	
+	// get current pixel
+    //var cw_imageData = cw_ctx.getImageData(0, 0, 130, 130);
+	var cw_imageData = cw_ctx.getImageData(mouse.x, mouse.y, 1, 1);
+	console.log("mouse.x = " +mouse.x + " mouse.y = " + mouse.y);
+    var cw_pixel = cw_imageData.data;
+	console.log("pixel = " + cw_imageData.data);
+	
+	//find selected swatch
+	for (let i = 0; i < swatch.length; i++) {
+		if(swatch[i].getAttributeNS(null, 'stroke-width') == 4){
+			console.log("selected swatch = " + i);
+			console.log("RGB = " + 'rgb(' + cw_pixel[0] + ', ' + cw_pixel[1] +', ' + cw_pixel[2]+ ')');
+			swatch[i].setAttributeNS(null, 'fill', 'rgb(' + cw_pixel[0] + ', ' + cw_pixel[1] +', ' + cw_pixel[2]+ ')');
+			pen = swatch[i].getAttributeNS(null, 'fill');
+			break;
+		}
+	}
+  }
+} 
+
+
+
+function resize(){ 
+  ctx.canvas.width = window.innerWidth * 0.95; 
+  ctx.canvas.height = window.innerHeight * 0.75; 
+} 
+
+function movePen(event){ 
+  if (!draw) return; 
+  ctx.lineWidth = brushStrokeSize.value; 
+  
+  ctx.lineCap = 'round'; 
+  ctx.beginPath();
+  ctx.strokeStyle = pen;
+  ctx.moveTo(mouse.x, mouse.y); 
+  getMousePos(event); 
+  ctx.lineTo(mouse.x , mouse.y); 
+  ctx.stroke(); 
+}
+
+function musicNote() {
+	document.getElementById('music_note').src='crossed_music_note.svg';
+}
+
+function crossedNote() {
+	document.getElementById('music_note').src='music_note.svg';
+}
+
+function play(key, tempo, delay) {
+	var oscillator;
+	oscillator = context.createOscillator();
+	oscillator.type = "sine";
+	oscillator.frequency.value = key;	
+	gainNode = context.createGain();
+	gainNode.connect(context.destination);
+	oscillator.connect(gainNode);
+	oscillator.start(delay);
+	oscillator.stop(tempo + delay);
+	
+}
+	
+function pixel() {
+	var tempo = 0.5;
+	var r, g, b, k;
+	var delay1 = 0;
+	for (let i = 0; i < 1000; i+=4) {
+		console.log(i);
+		r = pxl.data[i];
+		g = pxl.data[i+1];
+		b = pxl.data[i+2];
+		tempo = (r + g + b) / (255 * 3) * 2;
+		play(frequency[Math.floor((r + g) * b / (255 * 2 * 255) * frequency.length)], tempo, delay1);
+		delay1 += tempo;
+	}
+}
+
+function music() {
+	 var tempo = 0.5;
+	 var delay1 = 0;
+	 var delay2 = 0;
+	 
+	 
+	if (buttonState === "play") {
+		if (context == 0) {
+			//audio setup
+			context = new AudioContext();
+			gainNode = context.createGain();
+			gainNode.connect(context.destination);
+		} else {
+			context.resume();
+		}
+		document.getElementById("music_note").innerHtml = "pause";
+		crossedNote();
+		console.log("It works");
+		buttonState = "pause";
+		pxl = ctx.getImageData(0, 0, drawPad.width, drawPad.height);
+		pixel();
+	} else {
+		if (buttonState === "pause") {
+			context.suspend();
+			document.getElementById("music_note").innerHtml = "play";
+			musicNote();
+			buttonState = "play";
+		}
+	}
+}
+
+function drawCircle() {
+	let radius = 65;
+	let cw_image = cw_ctx.createImageData(2 * radius, 2 * radius);
+	let cw_data = cw_image.data;
+
+	for (let x = -radius; x < radius; x++) {
+	  for (let y = -radius; y < radius; y++) {
+
+		let [r, phi] = xy2polar(x, y);
+
+		if (r > radius) {
+		  // skip all (x,y) coordinates that are outside of the circle
+		  continue;
+		}
+
+		let deg = rad2deg(phi);
+
+		// Figure out the starting index of this pixel in the cw_image cw_data array.
+		let rowLength = 2 * radius;
+		let adjustedX = x + radius; // convert x from [-50, 50] to [0, 100] (the coordinates of the cw_image cw_data array)
+		let adjustedY = y + radius; // convert y from [-50, 50] to [0, 100] (the coordinates of the cw_image cw_data array)
+		let pixelWidth = 4; // each pixel requires 4 slots in the cw_data array
+		let index = (adjustedX + adjustedY * rowLength) * pixelWidth;
+
+		let hue = deg;
+		let saturation = r / radius;
+		let value = 1.0;
+
+		let [red, green, blue] = hsv2rgb(hue, saturation, value);
+		let alpha = 255;
+
+		cw_data[index] = red;
+		cw_data[index + 1] = green;
+		cw_data[index + 2] = blue;
+		cw_data[index + 3] = alpha;
+	  } 
+	}
+
+	cw_ctx.putImageData(cw_image, 0, 0);
+}
+
+function xy2polar(x, y) {
+	let r = Math.sqrt(x * x + y * y);
+	let phi = Math.atan2(y, x);
+	return [r, phi];
+}
+
+// rad in [-π, π] range
+// return degree in [0, 360] range
+function rad2deg(rad) {
+	return (rad + Math.PI) / (2 * Math.PI) * 360;
+}
+
+function hsv2rgb(hue, saturation, value) {
+  let chroma = value * saturation;
+  let hue1 = hue / 60;
+  let x = chroma * (1 - Math.abs(hue1 % 2 - 1));
+  let r1, g1, b1;
+  if (hue1 >= 0 && hue1 <= 1) {
+    [r1, g1, b1] = [chroma, x, 0];
+  } else if (hue1 >= 1 && hue1 <= 2) {
+    [r1, g1, b1] = [x, chroma, 0];
+  } else if (hue1 >= 2 && hue1 <= 3) {
+    [r1, g1, b1] = [0, chroma, x];
+  } else if (hue1 >= 3 && hue1 <= 4) {
+    [r1, g1, b1] = [0, x, chroma];
+  } else if (hue1 >= 4 && hue1 <= 5) {
+    [r1, g1, b1] = [x, 0, chroma];
+  } else if (hue1 >= 5 && hue1 <= 6) {
+    [r1, g1, b1] = [chroma, 0, x];
+  }
+
+  let m = value - chroma;
+  let [r, g, b] = [r1 + m, g1 + m, b1 + m];
+
+  // Change r,g,b values from [0,1] to [0,255]
+  return [255 * r, 255 * g, 255 * b];
+}
+</script>
+</html>
