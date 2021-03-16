@@ -17,7 +17,7 @@
 	<button id = "button" onclick = "music()"  />
 	<img id="music_note" src="music_note.svg" alt="Music note button" height="50" width="50">
 	</button>
-	<button>
+	<button id='trashcan' onclick="trash()">
 	<img src="trash_can.svg" alt="Trash button" height="50" width="50" />
 	</button>
 	<button id= "eraser" onclick="eraser()">
@@ -134,6 +134,20 @@ function startDraw(event){
   draw = true; 
   getMousePos(event); 
 } 
+
+function trash() {
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, drawPad.width, drawPad.height);
+}
+
+function eraser() {
+console.log('works')
+	pen = 'white';
+	for (let i = 0; i < swatch.length; i++) {
+	    swatch[i].setAttributeNS(null, 'stroke-width', 0);
+	    svg.appendChild(swatch[i])
+	}
+}
 	
 function stopDraw(){ 
   draw = false; 
@@ -153,21 +167,14 @@ function stopDraw(){
   if (clickswatch.getAttributeNS(null, "id") == "cw"){
 	mouse.x = event.clientX - cw.offsetLeft; 
 	mouse.y = event.clientY - cw.offsetTop; 
-	//mouse.x = Math.floor(event.pageX - cw.offsetLeft);
-	//mouse.y = Math.floor(event.pageY - cw.offsetLeft);
 	
 	// get current pixel
-    //var cw_imageData = cw_ctx.getImageData(0, 0, 130, 130);
 	var cw_imageData = cw_ctx.getImageData(mouse.x, mouse.y, 1, 1);
-	console.log("mouse.x = " +mouse.x + " mouse.y = " + mouse.y);
     var cw_pixel = cw_imageData.data;
-	console.log("pixel = " + cw_imageData.data);
 	
 	//find selected swatch
 	for (let i = 0; i < swatch.length; i++) {
 		if(swatch[i].getAttributeNS(null, 'stroke-width') == 4){
-			console.log("selected swatch = " + i);
-			console.log("RGB = " + 'rgb(' + cw_pixel[0] + ', ' + cw_pixel[1] +', ' + cw_pixel[2]+ ')');
 			swatch[i].setAttributeNS(null, 'fill', 'rgb(' + cw_pixel[0] + ', ' + cw_pixel[1] +', ' + cw_pixel[2]+ ')');
 			pen = swatch[i].getAttributeNS(null, 'fill');
 			break;
@@ -219,15 +226,17 @@ function play(key, tempo, delay) {
 	
 function pixel() {
 	var tempo = 0.5;
-	var r, g, b, k;
+	var r, g, b, k, music_key;
 	var delay1 = 0;
-	for (let i = 0; i < 1000; i+=4) {
-		console.log(i);
+	for (let i = 0; i < 10000; i+=40) { //pxl.data.length
 		r = pxl.data[i];
 		g = pxl.data[i+1];
 		b = pxl.data[i+2];
 		tempo = (r + g + b) / (255 * 3) * 2;
-		play(frequency[Math.floor((r + g) * b / (255 * 2 * 255) * frequency.length)], tempo, delay1);
+		music_key = Math.floor((r + g) * b / (255 * 2 * 255) * frequency.length);
+		play(frequency[music_key], tempo, delay1);
+		
+		//console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
 		delay1 += tempo;
 	}
 }
@@ -249,7 +258,6 @@ function music() {
 		}
 		document.getElementById("music_note").innerHtml = "pause";
 		crossedNote();
-		console.log("It works");
 		buttonState = "pause";
 		pxl = ctx.getImageData(0, 0, drawPad.width, drawPad.height);
 		pixel();
