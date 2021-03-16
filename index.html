@@ -80,9 +80,7 @@ for (let i = 0; i < swatchX.length; i++) {
 }
 drawCircle();
 
-cw.style.position = 'fixed';
-cw.style.top = svg.style.top;
-cw.style.left = swatchX[swatchX.length -1] + swatch_size + 15;
+
 
 function camera() {
 	if (vid == 0) {
@@ -171,7 +169,7 @@ console.log('works')
 	}
 }
 	
-function stopDraw(){ 
+function stopDraw(event){ 
   draw = false; 
   
   var clickswatch;
@@ -214,8 +212,11 @@ function stopDraw(){
 
 
 function resize(){ 
-  ctx.canvas.width = window.innerWidth * 0.95; 
-  ctx.canvas.height = window.innerHeight * 0.75; 
+	ctx.canvas.width = window.innerWidth * 0.95; 
+	ctx.canvas.height = window.innerHeight * 0.75; 
+	cw.style.position = 'fixed';
+	cw.style.top = svg.style.top;
+	cw.style.left = swatchX[swatchX.length -1] + swatch_size + 15;
 } 
 
 function movePen(event){ 
