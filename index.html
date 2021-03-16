@@ -12,7 +12,7 @@
 	<canvas height='130' id='cw' width='130' style= "fill: LightSlateGrey"></canvas>
 	<br>
     <button id="vid" onclick="camera()">
-	<img src="./camera.svg" alt="Take video/screenshot button" height="50" width="50" />
+	<img src="camera.svg" alt="Take video/screenshot button" height="100" width="100" />
 	</button>
 	<button id = "button" onclick = "music()"  />
 	<img id="music_note" src="music_note.svg" alt="Music note button" height="50" width="50">
@@ -135,7 +135,7 @@ window.addEventListener('load', ()=>{
     window.addEventListener('resize', resize); 
 	document.addEventListener('touchstart', tstart); 
     document.addEventListener('touchend', tstop); 
-    document.addEventListener('touchmove', movePen); 
+    document.addEventListener('touchmove', tmove); 
 }); 
 
 function startDraw(event){ 
@@ -152,7 +152,10 @@ function tstop(event) {
 	stopDraw(event);
 }
 
-
+function tmove(event) {
+	event.preventDefault();
+	movePen(event);
+}
 
 
 function trash() {
@@ -214,7 +217,7 @@ function stopDraw(event){
 function resize(){ 
 	ctx.canvas.width = window.innerWidth * 0.95; 
 	ctx.canvas.height = window.innerHeight * 0.75; 
-	cw.style.position = 'fixed';
+	cw.style.position = 'absolute';
 	cw.style.top = svg.style.top;
 	cw.style.left = swatchX[swatchX.length -1] + swatch_size + 15;
 } 
