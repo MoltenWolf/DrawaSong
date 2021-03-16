@@ -43,6 +43,7 @@ var pxl = ctx.getImageData(0, 0, drawPad.width, drawPad.height);
 var body =  document.getElementById('body');
 var j = 0;
 var noteLength;
+var touch = false;
 var i = 0;
 var buttonState = "play";
 var context = 0;
@@ -118,8 +119,14 @@ function takeShot() {
 }
 
 function getMousePos(event){ 
-  mouse.x = event.clientX - drawPad.offsetLeft; 
-  mouse.y = event.clientY - drawPad.offsetTop; 
+  if (!touch) {
+	mouse.x = event.clientX - drawPad.offsetLeft; 
+	mouse.y = event.clientY - drawPad.offsetTop; 
+  } else {
+	var touches = event.changedTouches;
+	mouse.x = touches[0].pageX - drawPad.offsetLeft; 
+	mouse.y = touches[0].pageY - drawPad.offsetTop; 
+  }
 } 
 
 window.addEventListener('load', ()=>{  
@@ -128,12 +135,27 @@ window.addEventListener('load', ()=>{
     document.addEventListener('mouseup', stopDraw); 
     document.addEventListener('mousemove', movePen); 
     window.addEventListener('resize', resize); 
+	document.addEventListener('touchstart', tstart); 
+    document.addEventListener('touchend', tstop); 
+    document.addEventListener('touchmove', movePen); 
 }); 
 
 function startDraw(event){ 
   draw = true; 
   getMousePos(event); 
 } 
+function tstart(event){ 
+	touch = true;
+    startDraw(event);
+} 
+
+function tstop(event) {
+	touch = false;
+	stopDraw(event);
+}
+
+
+
 
 function trash() {
 	ctx.fillStyle = "#FFFFFF";
@@ -165,9 +187,14 @@ function stopDraw(){
   } 
   
   if (clickswatch.getAttributeNS(null, "id") == "cw"){
-	mouse.x = event.clientX - cw.offsetLeft; 
-	mouse.y = event.clientY - cw.offsetTop; 
 	
+	if (!touch) {
+		mouse.x = event.clientX - cw.offsetLeft; 
+		mouse.y = event.clientY - cw.offsetTop; 
+	} else {
+		mouse.x = touches[0].pageX - cw.offsetLeft; 
+		mouse.y = touches[0].pageY - cw.offsetTop; 
+	}
 	// get current pixel
 	var cw_imageData = cw_ctx.getImageData(mouse.x, mouse.y, 1, 1);
     var cw_pixel = cw_imageData.data;
@@ -185,6 +212,7 @@ function stopDraw(){
 
 
 
+
 function resize(){ 
   ctx.canvas.width = window.innerWidth * 0.95; 
   ctx.canvas.height = window.innerHeight * 0.75; 
@@ -193,7 +221,6 @@ function resize(){
 function movePen(event){ 
   if (!draw) return; 
   ctx.lineWidth = brushStrokeSize.value; 
-  
   ctx.lineCap = 'round'; 
   ctx.beginPath();
   ctx.strokeStyle = pen;
