@@ -135,7 +135,7 @@ window.addEventListener('load', ()=>{
     window.addEventListener('resize', resize); 
 	document.addEventListener('touchstart', tstart); 
     document.addEventListener('touchend', tstop); 
-    document.addEventListener('touchmove', tmove); 
+    document.addEventListener('touchmove', movePen); 
 }); 
 
 function startDraw(event){ 
@@ -151,12 +151,6 @@ function tstop(event) {
 	touch = false;
 	stopDraw(event);
 }
-
-function tmove(event) {
-	event.preventDefault();
-	movePen(event);
-}
-
 
 function trash() {
 	ctx.fillStyle = "#FFFFFF";
@@ -224,6 +218,10 @@ function resize(){
 
 function movePen(event){ 
   if (!draw) return; 
+  
+  if (touch) 
+	event.preventDefault();
+	
   ctx.lineWidth = brushStrokeSize.value; 
   ctx.lineCap = 'round'; 
   ctx.beginPath();
