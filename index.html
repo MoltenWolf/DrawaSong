@@ -337,7 +337,7 @@ function pixel() {
 	var delay1 = 0;
 	prev_key = -123;
 	sameKeyNo = 0;
-	for (let i = 0; i < pxl.data.length && keyNo < MaxKey; i++) { //pxl.data.length
+	for (let i = 0; i < pxl.data.length && keyNo < MaxKey; i+=4) { //pxl.data.length
 		r = pxl.data[i];
 		g = pxl.data[i+1];
 		b = pxl.data[i+2];
