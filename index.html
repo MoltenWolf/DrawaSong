@@ -23,7 +23,6 @@
 	<button id= "eraser" onclick="eraser()">
 	<img src="eraser.svg" alt="Eraser button" height="50" width="50" />
 	</button> 
-	<br>
 	
 </body>
 <script>
@@ -129,13 +128,23 @@ function getMousePos(event){
 
 window.addEventListener('load', ()=>{  
     resize(); 
-    document.addEventListener('mousedown', startDraw); 
-    document.addEventListener('mouseup', stopDraw); 
-    document.addEventListener('mousemove', movePen); 
-    window.addEventListener('resize', resize); 
-	document.addEventListener('touchstart', tstart); 
-    document.addEventListener('touchend', tstop); 
-    document.addEventListener('touchmove', movePen); 
+	//resize
+	window.addEventListener('resize', resize); 
+	
+	//for drawPad
+    drawPad.addEventListener('mousedown', startDraw); 
+    drawPad.addEventListener('mouseup', stopDraw); 
+	drawPad.addEventListener('touchstart', tstart); 
+    drawPad.addEventListener('touchend', tstop); 
+	drawPad.addEventListener('mousemove', movePen); 
+    drawPad.addEventListener('touchmove', movePen); 
+	
+	
+	//for svg swatches
+	svg.addEventListener('mouseup', swatchClick);
+	
+	//for cw
+	cw.addEventListener('mouseup', cwClick);
 }); 
 
 function startDraw(event){ 
@@ -143,11 +152,13 @@ function startDraw(event){
   getMousePos(event); 
 } 
 function tstart(event){ 
+	event.preventDefault();
 	touch = true;
     startDraw(event);
 } 
 
 function tstop(event) {
+	event.preventDefault();
 	touch = false;
 	stopDraw(event);
 }
@@ -165,23 +176,25 @@ console.log('works')
 	    svg.appendChild(swatch[i])
 	}
 }
-	
-function stopDraw(event){ 
-  draw = false; 
-  
-  var clickswatch;
-  clickswatch = event.target;
-  if (clickswatch.getAttributeNS(null, "id") == "swatch") {
-	for (let i = 0; i < swatch.length; i++) {
-	  swatch[i].setAttributeNS(null, 'stroke-width', 0);
-	  svg.appendChild(swatch[i])
-	}
-	clickswatch.setAttributeNS(null, 'stroke-width', 4);
-	svg.appendChild(clickswatch);
-	pen = clickswatch.getAttributeNS(null, 'fill');
-  } 
-  
-  if (clickswatch.getAttributeNS(null, "id") == "cw"){
+
+function swatchClick(event){
+	var clickswatch;
+	clickswatch = event.target;
+	if (clickswatch.getAttributeNS(null, "id") == "swatch") {
+		for (let i = 0; i < swatch.length; i++) {
+			swatch[i].setAttributeNS(null, 'stroke-width', 0);
+			svg.appendChild(swatch[i])
+		}
+		clickswatch.setAttributeNS(null, 'stroke-width', 4);
+		svg.appendChild(clickswatch);
+		pen = clickswatch.getAttributeNS(null, 'fill');
+	} 
+}
+
+function cwClick(event) {
+	var clickcw;
+	clickcw = event.target;
+	if (clickcw.getAttributeNS(null, "id") == "cw"){
 	
 	if (!touch) {
 		mouse.x = event.clientX - cw.offsetLeft; 
@@ -203,6 +216,10 @@ function stopDraw(event){
 		}
 	}
   }
+}
+	
+function stopDraw(event){ 
+	draw = false; 
 } 
 
 
@@ -217,19 +234,19 @@ function resize(){
 } 
 
 function movePen(event){ 
-  if (!draw) return; 
-  
-  if (touch) 
-	event.preventDefault();
+	if (touch){
+		event.preventDefault();
+	}
+	if (!draw) return; 
 	
-  ctx.lineWidth = brushStrokeSize.value; 
-  ctx.lineCap = 'round'; 
-  ctx.beginPath();
-  ctx.strokeStyle = pen;
-  ctx.moveTo(mouse.x, mouse.y); 
-  getMousePos(event); 
-  ctx.lineTo(mouse.x , mouse.y); 
-  ctx.stroke(); 
+	ctx.lineWidth = brushStrokeSize.value; 
+	ctx.lineCap = 'round'; 
+	ctx.beginPath();
+	ctx.strokeStyle = pen;
+	ctx.moveTo(mouse.x, mouse.y); 
+	getMousePos(event); 
+	ctx.lineTo(mouse.x , mouse.y); 
+	ctx.stroke(); 
 }
 
 function musicNote() {
@@ -265,7 +282,7 @@ function pixel() {
 		music_key = Math.floor((r + g) * b / (255 * 2 * 255) * frequency.length);
 		play(frequency[music_key], tempo, delay1);
 		
-		//console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
+		console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
 		delay1 += tempo;
 	}
 }
