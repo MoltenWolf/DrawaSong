@@ -1,12 +1,23 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	
+	<style>
+	<!--This will help the look of the button. Button is not showing properly on iPad.-->
+	input {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		opacity: 1
+	}
+	</style>
 </head>
 
 <body id="body">	
 	<canvas id = "drawPad" style="border:0.5px solid"></canvas>
-	<svg id="id" width= "95.9%" height= "130">
-		<rect width= "100%" height = "130" style= "fill: LightSlateGrey;stroke:DimGrey;stroke-width:5" />	
+	<svg id="id" width= "60%" height= "130">
+		<rect id="bar" style= "fill: LightSlateGrey;stroke:DimGrey;stroke-width:5" />	
 
 	</svg>
 	<canvas height='130' id='cw' width='130' style= "fill: LightSlateGrey"></canvas>
@@ -26,9 +37,6 @@
 	
 </body>
 <script>
-
-var constraints;
-var video;
 const swatchX = [50, 115, 180, 245, 310, 375, 50, 115, 180, 245, 310, 375];
 const swatchY = [5,5,5,5,5,5,75,75,75,75,75,75];
 const swatch_size = 50;
@@ -36,6 +44,10 @@ const swatchColor = ['red', 'orange', 'gold', 'green', 'royalBlue', 'rebeccaPurp
 const svg = document.getElementById("id");
 const drawPad = document.getElementById('drawPad');
 const ctx = drawPad.getContext('2d'); 
+var constraints;
+var video;
+var bar = document.getElementById("bar");
+var swatch_no = swatchColor.length;
 var vid = 0;	
 var canvas = document.getElementById("canvas");	
 var pxl = ctx.getImageData(0, 0, drawPad.width, drawPad.height);
@@ -65,18 +77,21 @@ body.appendChild(brushStrokeSize);
 
 
 
-for (let i = 0; i < swatchX.length; i++) {
+for (let i = 0; i < swatch_no; i++) {
 	swatch[i] = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
 	swatch[i].setAttributeNS(null, 'width', swatch_size);
 	swatch[i].setAttributeNS(null, 'height', swatch_size);
 	swatch[i].setAttributeNS(null, 'id', 'swatch');
 	swatch[i].setAttributeNS(null, 'stroke', 'black');
 	swatch[i].setAttributeNS(null, 'stroke-width', 0);
-	swatch[i].setAttributeNS(null, 'x', swatchX[i]);
-	swatch[i].setAttributeNS(null, 'y', swatchY[i]);
+	//swatch[i].setAttributeNS(null, 'x', swatchX[i]);
+	//swatch[i].setAttributeNS(null, 'y', swatchY[i]);
 	swatch[i].setAttributeNS(null, 'fill', swatchColor[i]);
 	svg.appendChild(swatch[i]);
 }
+
+
+
 drawCircle();
 
 
@@ -134,7 +149,7 @@ window.addEventListener('load', ()=>{
 	//for drawPad
     drawPad.addEventListener('mousedown', startDraw); 
     drawPad.addEventListener('mouseup', stopDraw); 
-	drawPad.addEventListener('touchstart', tstart); 
+	drawPad.addEventListener('touchstart', tstart, {passive:true}); 
     drawPad.addEventListener('touchend', tstop); 
 	drawPad.addEventListener('mousemove', movePen); 
     drawPad.addEventListener('touchmove', movePen); 
@@ -152,7 +167,6 @@ function startDraw(event){
   getMousePos(event); 
 } 
 function tstart(event){ 
-	event.preventDefault();
 	touch = true;
     startDraw(event);
 } 
@@ -218,7 +232,7 @@ function cwClick(event) {
   }
 }
 	
-function stopDraw(event){ 
+ function stopDraw(event){ 
 	draw = false; 
 } 
 
@@ -227,10 +241,49 @@ function stopDraw(event){
 
 function resize(){ 
 	ctx.canvas.width = window.innerWidth * 0.95; 
-	ctx.canvas.height = window.innerHeight * 0.75; 
+	ctx.canvas.height = window.innerHeight * 0.60; 
+	svg.height = window.innerHeight * 0.20; 
+	svg.width = window.innerWidth * 0.60; 	
+	
+	
+	
+	//calculates position of the swatches
+	const swatch_space = 5;
+	var bar_length = parseFloat(window.innerWidth)*0.6;
+	var bar_height;
+	var prev_x = 0;
+	//var prev_y = 0;
+	var new_x = -swatch_size;
+	var new_y = swatch_space;
+	
+	bar.setAttributeNS(null, 'width', bar_length);
+	
+	for(let i=0; i<swatch_no; i++) {
+		prev_x = new_x;
+		new_x = prev_x + swatch_size + swatch_space;
+		if (new_x + swatch_size < bar_length){
+			swatch[i].setAttributeNS(null, 'x', new_x);
+			swatch[i].setAttributeNS(null, 'y', new_y);			
+		} else {
+			new_y += (swatch_space + swatch_size);
+			new_x = swatch_space;
+			swatch[i].setAttributeNS(null, 'x', new_x);
+			swatch[i].setAttributeNS(null, 'y', new_y);			
+		}
+	}
+
+	bar_height = new_y + swatch_size + swatch_space;
+	bar.setAttributeNS(null, 'height', bar_height);
+	
+	if (bar_height > svg.height){		
+		ctx.canvas.height -= (bar_height -svg.height);
+		svg.height = bar_height;
+	}
+	
+	//calculate color wheel position
 	cw.style.position = 'absolute';
 	cw.style.top = svg.style.top;
-	cw.style.left = swatchX[swatchX.length -1] + swatch_size + 15;
+	cw.style.left = svg.width;
 } 
 
 function movePen(event){ 
@@ -278,11 +331,11 @@ function pixel() {
 		r = pxl.data[i];
 		g = pxl.data[i+1];
 		b = pxl.data[i+2];
-		tempo = (r + g + b) / (255 * 3) * 2;
-		music_key = Math.floor((r + g) * b / (255 * 2 * 255) * frequency.length);
+		tempo = (r + g + b) / (255 * 3) * 1;
+		music_key = Math.floor((r + g + i) * b / ((255*2+i) * 255) * frequency.length);
 		play(frequency[music_key], tempo, delay1);
 		
-		console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
+		//console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
 		delay1 += tempo;
 	}
 }
