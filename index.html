@@ -34,16 +34,15 @@
     <button class="button" type="button" id="vid" onclick="camera()">
 	<img src="camera.svg" alt="Take video/screenshot button" height="50" width="50" />
 	</button>
-	<button type="button" id = "button" onclick = "music()"  />
+	<button type="button" class="button" id = "button" onclick = "music()"  />
 	<img type="button" id="music_note" src="music_note.svg" alt="Music note button" height="50" width="50">
 	</button>
-	<button type="button" id='trashcan' onclick="trash()">
+	<button type="button" class="button" id='trashcan' onclick="trash()">
 	<img src="trash_can.svg" alt="Trash button" height="50" width="50" />
 	</button>
-	<button type="button" id= "eraser" onclick="eraser()">
+	<button type="button" class="button" id= "eraser" onclick="eraser()">
 	<img src="eraser.svg" alt="Eraser button" height="50" width="50" />
 	</button> 
-	
 </body>
 <script>
 const swatchX = [50, 115, 180, 245, 310, 375, 50, 115, 180, 245, 310, 375];
@@ -131,8 +130,8 @@ function startVid() {
 	video.play();
 }
 function takeShot() {
-	drawPad.width = video.videoWidth;
-	drawPad.height = video.videoHeight;
+	/*drawPad.width = video.videoWidth;
+	drawPad.height = video.videoHeight;*/
 	video.pause();
 	drawPad.getContext("2d").drawImage(vid, 0, 0);
 	body.removeChild(vid);
@@ -192,7 +191,6 @@ function trash() {
 }
 
 function eraser() {
-console.log('works')
 	pen = 'white';
 	for (let i = 0; i < swatch.length; i++) {
 	    swatch[i].setAttributeNS(null, 'stroke-width', 0);
@@ -329,21 +327,33 @@ function play(key, tempo, delay) {
 	oscillator.connect(gainNode);
 	oscillator.start(delay);
 	oscillator.stop(tempo + delay);
-	
 }
 	
 function pixel() {
+	const MaxKey = 1500;
+	var keyNo = 0;
 	var tempo = 0.5;
-	var r, g, b, k, music_key;
+	var r, g, b, k, music_key, prev_key, sameKeyNo;
 	var delay1 = 0;
-	for (let i = 0; i < 10000; i+=40) { //pxl.data.length
+	prev_key = -123;
+	sameKeyNo = 0;
+	for (let i = 0; i < pxl.data.length && keyNo < MaxKey; i++) { //pxl.data.length
 		r = pxl.data[i];
 		g = pxl.data[i+1];
 		b = pxl.data[i+2];
 		tempo = (r + g + b) / (255 * 3) * 1;
 		music_key = Math.floor((r + g + i) * b / ((255*2+i) * 255) * frequency.length);
+		if (prev_key == music_key) {
+			sameKeyNo++;
+		} else {
+			sameKeyNo = 0;
+			prev_key = music_key;
+		}
+		if (sameKeyNo >= 5) {
+			continue;
+		}
 		play(frequency[music_key], tempo, delay1);
-		
+		keyNo++;
 		//console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
 		delay1 += tempo;
 	}
@@ -358,6 +368,7 @@ function music() {
 	if (buttonState === "play") {
 		if (context == 0) {
 			//audio setup
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
 			context = new AudioContext();
 			gainNode = context.createGain();
 			gainNode.connect(context.destination);
