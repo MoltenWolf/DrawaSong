@@ -342,7 +342,11 @@ function pixel() {
 		g = pxl.data[i+1];
 		b = pxl.data[i+2];
 		tempo = (r + g + b) / (255 * 3) * 1;
-		music_key = Math.floor((r + g + i) * b / ((255*2+i) * 255) * frequency.length);
+		music_key = Math.floor((r + g + i) * b / ((255*2+i) * 255) * (frequency.length-1));
+		if(music_key >= frequency.length || music_key < 0) {
+			console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
+			music_key = frequency.length - 1;
+		}
 		if (prev_key == music_key) {
 			sameKeyNo++;
 		} else {
@@ -352,10 +356,7 @@ function pixel() {
 		if (sameKeyNo >= 5) {
 			continue;
 		}
-		if(music_key >= frequency.length || music_key < 0) {
-			console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
-			music_key = frequency.length - 1;
-		}
+		
 		play(frequency[music_key], tempo, delay1);
 		keyNo++;
 		
