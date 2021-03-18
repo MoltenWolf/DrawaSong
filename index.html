@@ -330,7 +330,7 @@ function play(key, tempo, delay) {
 }
 	
 function pixel() {
-	const MaxKey = 1500;
+	const MaxKey = 1000;
 	var keyNo = 0;
 	var tempo = 0.5;
 	var r, g, b, k, music_key, prev_key, sameKeyNo;
@@ -352,9 +352,13 @@ function pixel() {
 		if (sameKeyNo >= 5) {
 			continue;
 		}
+		if(music_key >= frequency.length || music_key < 0) {
+			console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
+			music_key = frequency.length - 1;
+		}
 		play(frequency[music_key], tempo, delay1);
 		keyNo++;
-		//console.log("freq["+ music_key + "] = " + frequency[music_key] + " tempo = " + tempo);
+		
 		delay1 += tempo;
 	}
 }
